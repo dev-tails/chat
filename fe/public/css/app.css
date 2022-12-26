@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* .message-list {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    flex-grow: 1;
+} */
+
+/* .textbox {
+    background-color: #424242;
+    text-align: center;
+}
+
+.textbox input {
+    max-width: 900px;
+    width: 100%;
+    background-color: transparent;
+    font-size: 1.25rem;
+    padding: 8px;
+    height: 50px;
+    border: none;
+    color: white;
+} */
+
+.hover\:text-primary:hover {
+    cursor: pointer;
+    background-color: #424242;
+    color: white;
+}
