@@ -17,7 +17,7 @@ import { postUserRoomConfig } from '../apis/UserRoomConfigApi';
 
 import { clearUnreadBubble, RoomList } from './RoomList';
 
-import { getSelf, getUser } from '../apis/UserApi';
+import { getSelf, getUser, users } from '../apis/UserApi';
 import { Button } from '../components/Button';
 import { Div } from '../components/Div';
 import { Span } from '../components/Span';
@@ -781,44 +781,49 @@ export function RoomView(props: RoomViewProps) {
 
   function RoomHeader() {
     const el = Div({
-      class: 'room-header'
+      class: 'room-header',
     });
-
     setStyle(el, {
       display: 'flex',
+      justifyContent: 'space-between',
       borderBottom: Borders.bottom,
       padding: '8px',
-      width: '100%',
-      margin: '0 auto',
     });
+
+    const leftSideEl = Div();
+    setStyle(leftSideEl, {
+      display: 'flex',
+    });
+
+    el.append(leftSideEl);
+    const rightSideEl = Div();
+    el.append(rightSideEl);
 
     const btnBack = Button({
       text: '<',
     });
-    el.append(btnBack);
     onClick(btnBack, () => {
       setURL(Routes.home);
     });
+    leftSideEl.append(btnBack);
 
     const btnSidebar = Button({
-      text: 'Toggle Sidebar'
+      text: 'Toggle Sidebar',
     });
     setStyle(btnSidebar, {
       marginLeft: '10px',
-    })
-    el.append(btnSidebar);
-
+    });
     onClick(btnSidebar, () => {
       toggleSidebar();
-      localStorage.getItem('sidebar') === 'true' ?
-        document.getElementById('sidebar').style.width = "200px" :
-        document.getElementById('sidebar').style.width = "0px";
-    })
+      localStorage.getItem('sidebar') === 'true'
+        ? (document.getElementById('sidebar').style.width = '200px')
+        : (document.getElementById('sidebar').style.width = '0px');
+    });
+    leftSideEl.append(btnSidebar);
 
     const roomNameEl = Div({
-      class: 'room-name-el'
+      class: 'room-name-el',
     });
-
     setStyle(roomNameEl, {
       paddingLeft: '8px',
       textOverflow: 'ellipsis',
@@ -826,8 +831,50 @@ export function RoomView(props: RoomViewProps) {
       paddingRight: '20px',
     });
     setText(roomNameEl, room.name);
+    leftSideEl.append(roomNameEl);
 
-    el.append(roomNameEl);
+    const btnMembers = Button({
+      text: `${room.users.length} Members`,
+    });
+    const handleOpenMembers = () => {
+      const chatMembers = users.filter((user) => room.users.includes(user._id));
+      const popoverEl = Div();
+      setStyle(popoverEl, {
+        position: 'fixed',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        border: '1px solid black',
+        background: 'white',
+        padding: '8px',
+        minWidth: '130px',
+        right: '8px',
+        top: '80px',
+      });
+      rightSideEl.append(popoverEl);
+
+      chatMembers.forEach((member) => {
+        const name = Div({
+          class: 'member-name',
+        });
+        setText(name, member.name);
+        popoverEl.append(name);
+      });
+
+      const handleCloseMembers = () => {
+        popoverEl.remove();
+        btnMembers.removeEventListener('click', handleCloseMembers);
+        btnMembers.addEventListener('click', handleOpenMembers);
+      };
+
+      btnMembers.removeEventListener('click', handleOpenMembers);
+      btnMembers.addEventListener('click', handleCloseMembers);
+
+      leftSideEl.append(roomNameEl);
+    };
+
+    btnMembers.addEventListener('click', handleOpenMembers);
+    rightSideEl.append(btnMembers);
 
     return el;
   }

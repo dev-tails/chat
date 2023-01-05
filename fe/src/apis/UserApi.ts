@@ -12,7 +12,7 @@ type User = {
 };
 
 let self: User | null = null;
-let users: User[] = [];
+export let users: User[] = [];
 
 export async function initializeUserApi() {
   self = await fetchSelf();

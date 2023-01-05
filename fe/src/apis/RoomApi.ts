@@ -22,6 +22,7 @@ const roomListListenerByRoomId: { [roomId: string]: UserRoomConfigListener } = {
 export type Room = {
   _id: string;
   name: string;
+  users: string[];
   userRoomConfig?: UserRoomConfig;
 };
 
