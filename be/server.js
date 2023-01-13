@@ -129,11 +129,43 @@ async function run() {
   //Create new room
   app.post('/api/rooms', async (req,res) => {
     if (!req.body.name || !req.body.users) {
-      return res.sendStatus(400);
+      res.sendStatus(400);
     }
     const users = req.body.users.map((user) => mongodb.ObjectId(user));
     const room = await Room.insertOne({name: req.body.name, users: users});
-    return res.sendStatus(200);
+    res.sendStatus(200);
+  });
+
+  /** 
+   * Delete member from room
+   * @param userID - The id of the user to be removed
+   * @param _id - The ObejctID of the room
+    */
+  app.delete('/api/rooms/members', async (req,res) => {
+    const {userID, roomID} = req.body
+    if(!userID || !roomID) {
+      res.send('userID or roomID not present').sendStatus(400);
+    }
+    const result = await Room.updateOne({_id: mongodb.ObjectId(roomID) }, {$pull: {users: mongodb.ObjectId(userID) } });
+    if(result.modifiedCount === 1) {
+      res.sendStatus(200);
+    }
+    else {
+      res.sendStatus(404);
+    }
+  });
+
+  //Delete room
+  app.delete('/api/rooms', async (req,res) => {
+    const {_id} = req.body
+    if(!_id) {
+      res.sendStatus(400);
+    }
+    const room = await Room.deleteOne({_id: mongodb.ObjectId(_id)});
+    if(room.deleteCount < 1) {
+      res.sendStatus(404);
+    }
+    res.sendStatus(200);
   });
 
   app.post('/api/userroomconfigs', async (req, res) => {
