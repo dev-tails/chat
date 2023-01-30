@@ -134,6 +134,25 @@ export async function createRoom(params: createRoomParamsData) {
   return room;
 }
 
+export type UpdateRoomParams = {
+  roomID: string,
+  users: string[]; //objectID
+}
+
+export async function updateRoom(params: UpdateRoomParams) {
+  if (!params.roomID || !params.users) {
+    return;
+  }
+  const room = await fetch('/api/rooms', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({_id: params.roomID, users: params.users}),
+  })
+  return room;
+}
+
 export type MessageType = {
   _id: string;
   user: string;

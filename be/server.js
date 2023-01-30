@@ -168,6 +168,31 @@ async function run() {
     res.sendStatus(200);
   });
 
+  //edit room
+  app.put('/api/rooms', async (req,res) => {
+    let {_id, users} = req.body;
+    users = users.map((user) => mongodb.ObjectId(user));
+    console.log(_id, users);
+    if(!_id) {
+      res.sendStatus(400);
+    }
+    const room = await Room.updateOne(
+      {_id: mongodb.ObjectId(_id)}, 
+      { 
+        $set: 
+        {
+          users: users
+        }
+      }
+    );
+    if(room.modifiedCount < 1) {
+      res.sendStatus(500);
+    }
+    else {
+      res.sendStatus(200);
+    }
+  })
+
   app.post('/api/userroomconfigs', async (req, res) => {
     const { _id } = req.body;
     if (_id) {

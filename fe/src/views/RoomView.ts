@@ -41,12 +41,14 @@ import { setURL } from '../utils/HistoryUtils';
 import { sendFile } from '../apis/FileUploadApi';
 import { emojiList } from '../theme/Emojis'
 import WarningModal from '../components/Modals/WarningModal';
+import ManageMembersModal from '../components/Modals/ManageMembersModal';
+import { Icon } from '../components/Icon';
 
 type RoomViewProps = {
   roomId: string;
 };
 
-let sideBarEnabled = false;
+let dropdownEnabled = false;
 const isMobile = window.innerWidth <= 768 ? true : false
 
 export function RoomView(props: RoomViewProps) {
@@ -60,7 +62,7 @@ export function RoomView(props: RoomViewProps) {
   let messageBeingEdited = false;
 
   const mql = window.matchMedia('(max-width: 600px');
-  sideBarEnabled = localStorage.getItem('sidebar') === 'true';
+  dropdownEnabled = localStorage.getItem('dropdown') === 'true';
 
 
   const roomView = Div({
@@ -881,19 +883,19 @@ export function RoomView(props: RoomViewProps) {
     });
     leftSideEl.append(btnBack);
 
-    const btnSidebar = Button({
-      text: 'Toggle Sidebar',
+    const btndropdown = Button({
+      text: 'Toggle dropdown',
     });
-    setStyle(btnSidebar, {
+    setStyle(btndropdown, {
       marginLeft: '10px',
     });
-    onClick(btnSidebar, () => {
-      toggleSidebar();
-      localStorage.getItem('sidebar') === 'true'
-        ? (document.getElementById('sidebar').style.width = '200px')
-        : (document.getElementById('sidebar').style.width = '0px');
+    onClick(btndropdown, () => {
+      toggledropdown();
+      localStorage.getItem('dropdown') === 'true'
+        ? (document.getElementById('dropdown').style.width = '200px')
+        : (document.getElementById('dropdown').style.width = '0px');
     });
-    leftSideEl.append(btnSidebar);
+    leftSideEl.append(btndropdown);
 
     const roomNameEl = Div({
       class: 'room-name-el',
@@ -929,7 +931,6 @@ export function RoomView(props: RoomViewProps) {
     leaveRoomBtn.addEventListener('click', (e) => {
       leaveRoomWarningModal.style.display = 'flex';
     });
-    rightSideEl.append(leaveRoomBtn)
 
     const deleteRoomBtn = Button({
       text: 'Delete Room'
@@ -951,9 +952,22 @@ export function RoomView(props: RoomViewProps) {
     deleteRoomBtn.addEventListener('click', (e) => {
       deleteRoomWarningModal.style.display = 'flex';
     });
-    rightSideEl.append(deleteRoomBtn);
 
     el.appendChild(deleteRoomWarningModal);
+
+    const manageMembersBtn = Button({
+      text: 'Manage Users',
+    });
+    setStyle(manageMembersBtn, {
+      marginLeft: '10px'
+    });
+    manageMembersBtn.addEventListener('click', async (e) => {
+      roomView.append(ManageMembersModal({
+        buttonRef: manageMembersBtn, 
+        parentRef: roomView,
+        roomID: props.roomId
+      }));
+    });
 
     const btnMembers = Button({
       text: `${room.users.length} Members`,
@@ -965,7 +979,7 @@ export function RoomView(props: RoomViewProps) {
       const chatMembers = users.filter((user) => room.users.includes(user._id));
       const popoverEl = Div();
       setStyle(popoverEl, {
-        position: 'fixed',
+        position: 'absolute',
         display: 'flex',
         flexDirection: 'column',
         gap: '4px',
@@ -976,7 +990,7 @@ export function RoomView(props: RoomViewProps) {
         right: '8px',
         top: '80px',
       });
-      rightSideEl.append(popoverEl);
+      isMobile ? btnMembers.append(popoverEl) : rightSideEl.append(popoverEl);
 
       chatMembers.forEach((member) => {
         const name = Div({
@@ -999,14 +1013,54 @@ export function RoomView(props: RoomViewProps) {
     };
 
     btnMembers.addEventListener('click', handleOpenMembers);
-    rightSideEl.append(btnMembers);
+
+    if(isMobile) {
+      const dropdown = Div();
+      setStyle(dropdown, {
+        position: "absolute",
+        width: '100%',
+        height: "0%",
+        transition: "0.5s ease-in-out",
+        backgroundColor: "white",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+      });
+      const dropdownXIcon = Icon({class: "fa-solid fa-x"})
+      setStyle(dropdownXIcon, {
+        fontSize: '20'
+      })
+      dropdownXIcon.addEventListener('click', (e) => {
+        dropdown.style.height = "0%"
+      })
+
+      dropdown.append(dropdownXIcon, leaveRoomBtn, deleteRoomBtn, manageMembersBtn, btnMembers);
+
+      const hamburgerMenu = Icon({class: 'fa-solid fa-bars'});
+      setStyle(hamburgerMenu, {
+        padding: "0 10px",
+        position: 'relative',
+      })
+      hamburgerMenu.addEventListener('click', (e) => {
+        dropdown.style.height = "50%"
+      });
+      rightSideEl.append(hamburgerMenu);
+      roomView.append(dropdown);
+    }
+    else {
+      rightSideEl.append(leaveRoomBtn);
+      rightSideEl.append(deleteRoomBtn);
+      rightSideEl.append(manageMembersBtn);
+      rightSideEl.append(btnMembers);
+    }
 
     return el;
   }
 
-  function SideBar() {
+  function dropdown() {
     const el = Div({
-      id: 'sidebar'
+      id: 'dropdown'
     });
     setStyle(el, {
       flexShrink: '0',
@@ -1014,7 +1068,7 @@ export function RoomView(props: RoomViewProps) {
       width: '0px',
       maxWidth: '33.33%'
     })
-    if (localStorage.getItem('sidebar') === 'true') {
+    if (localStorage.getItem('dropdown') === 'true') {
       el.style.width = '200px';
     }
 
@@ -1026,13 +1080,13 @@ export function RoomView(props: RoomViewProps) {
     return el;
   }
 
-  function toggleSidebar() {
-    sideBarEnabled = !sideBarEnabled;
+  function toggledropdown() {
+    dropdownEnabled = !dropdownEnabled;
 
-    localStorage.setItem('sidebar', sideBarEnabled ? 'true' : 'false');
+    localStorage.setItem('dropdown', dropdownEnabled ? 'true' : 'false');
   }
 
-  roomView.append(SideBar());
+  roomView.append(dropdown());
   roomView.append(messageView);
 
   const roomHeader = RoomHeader();
