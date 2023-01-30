@@ -95,6 +95,26 @@ export function getRoom(roomId) {
   return roomsById[roomId];
 }
 
+export async function deleteRoom(roomId) {
+  const res = await fetch('/api/rooms', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({_id: roomId}),
+  })
+}
+
+export async function removeUserFromRoom(userID, roomID) {
+  const res = await fetch('/api/rooms/members', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({userID: userID, roomID: roomID})
+  })
+}
+
 export type createRoomParamsData = {
   name: string;
   users: string[]; //objectID

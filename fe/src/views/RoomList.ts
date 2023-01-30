@@ -1,7 +1,7 @@
 import { getRooms, onUnreadUpdate, Room } from '../apis/RoomApi';
 import { isLoggedIn } from '../apis/UserApi';
 import { postUserRoomConfig, UserRoomConfig } from '../apis/UserRoomConfigApi';
-import CreateRoomModal from '../components/CreateRoomModal';
+import CreateRoomModal from '../components/Modals/CreateRoomModal';
 import { Div } from '../components/Div';
 import { Input } from '../components/Input';
 import { Span } from '../components/Span';

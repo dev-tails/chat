@@ -11,6 +11,8 @@ import {
   editRoomMessage,
   onEditMessage,
   getRoomMessageByPage,
+  deleteRoom,
+  removeUserFromRoom,
 } from '../apis/RoomApi';
 
 import { postUserRoomConfig } from '../apis/UserRoomConfigApi';
@@ -38,6 +40,7 @@ import {
 import { setURL } from '../utils/HistoryUtils';
 import { sendFile } from '../apis/FileUploadApi';
 import { emojiList } from '../theme/Emojis'
+import WarningModal from '../components/Modals/WarningModal';
 
 type RoomViewProps = {
   roomId: string;
@@ -904,9 +907,60 @@ export function RoomView(props: RoomViewProps) {
     setText(roomNameEl, room.name);
     leftSideEl.append(roomNameEl);
 
+    const leaveRoomBtn = Button({
+      text: 'Leave Room',
+    });
+    setStyle(leaveRoomBtn, {
+      marginLeft: '10px',
+    });
+
+    const leaveRoomWarningModal = WarningModal({
+      title: 'Leave Room?',
+      content: 'Are you sure you want to leave the room?',
+      buttonRef: leaveRoomBtn,
+      onAccept: () => {
+        removeUserFromRoom(getSelf()?._id, props.roomId) 
+        setURL(Routes.home);
+      }
+    });
+
+    el.appendChild(leaveRoomWarningModal);
+
+    leaveRoomBtn.addEventListener('click', (e) => {
+      leaveRoomWarningModal.style.display = 'flex';
+    });
+    rightSideEl.append(leaveRoomBtn)
+
+    const deleteRoomBtn = Button({
+      text: 'Delete Room'
+    });
+    setStyle(deleteRoomBtn, {
+      marginLeft: '10px',
+    });
+
+    const deleteRoomWarningModal = WarningModal({
+      title: 'Delete Room?',
+      content: 'Are you sure you want to delete the room?',
+      buttonRef: deleteRoomBtn,
+      onAccept: () => {
+        deleteRoom(props.roomId);
+        setURL(Routes.home);
+      }
+    });
+
+    deleteRoomBtn.addEventListener('click', (e) => {
+      deleteRoomWarningModal.style.display = 'flex';
+    });
+    rightSideEl.append(deleteRoomBtn);
+
+    el.appendChild(deleteRoomWarningModal);
+
     const btnMembers = Button({
       text: `${room.users.length} Members`,
     });
+    setStyle(btnMembers, {
+      marginLeft: '10px'
+    })
     const handleOpenMembers = () => {
       const chatMembers = users.filter((user) => room.users.includes(user._id));
       const popoverEl = Div();

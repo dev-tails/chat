@@ -1,11 +1,11 @@
-import { createRoom } from '../apis/RoomApi';
-import { getUsers } from '../apis/UserApi';
-import { Br } from '../components/Br';
-import { Button } from '../components/Button';
-import { Div } from '../components/Div';
-import { Input } from '../components/Input';
-import { Span } from '../components/Span';
-import { setStyle } from '../utils/DomUtils';
+import { createRoom } from '../../apis/RoomApi';
+import { getUsers } from '../../apis/UserApi';
+import { Br } from '../Br';
+import { Button } from '../Button';
+import { Div } from '../Div';
+import { Input } from '../Input';
+import { Span } from '../Span';
+import { setStyle } from '../../utils/DomUtils';
 
 const CreateRoomModal = async (buttonRef: HTMLElement) => {
     const overlay = Div();
@@ -40,6 +40,8 @@ const CreateRoomModal = async (buttonRef: HTMLElement) => {
     setStyle(Header, {
       display: 'flex',
       justifyContent: 'space-between',
+      fontSize: '30px',
+      paddingBottom: '20px',
     });
 
     const close = Button({text: 'X'})
@@ -49,10 +51,6 @@ const CreateRoomModal = async (buttonRef: HTMLElement) => {
     Header.append(Div().innerText = 'Create Room');
     Header.append(close);
 
-    setStyle(Header, {
-      fontSize: '30px',
-      paddingBottom: '20px',
-    })
     createRoomModal.appendChild(Header);
 
     const NameInput = Input();
