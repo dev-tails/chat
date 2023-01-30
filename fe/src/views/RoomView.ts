@@ -1028,6 +1028,9 @@ export function RoomView(props: RoomViewProps) {
         gap: "5px",
       });
       const dropdownXIcon = Icon({class: "fa-solid fa-x"})
+      setStyle(dropdownXIcon, {
+        fontSize: '20'
+      })
       dropdownXIcon.addEventListener('click', (e) => {
         dropdown.style.height = "0%"
       })
